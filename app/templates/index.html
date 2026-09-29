@@ -6,13 +6,34 @@
     <!-- Подключаем будущие стили из папки static-->
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
-<body style="background: #1e1e24; color: white; font-family: Arial, sans-serif; text-align: center; padding-top: 50px;">
+<body>
 
     <h1>MergeOnline-Web 🎵</h1>
     <p>Добро пожаловать в веб-версию миксера треков Friday Night Funkin'!</p>
     
-    <!-- Сюда планирую добавить в следующем шаге форму выбора файлов и галочку RMS -->
+    <!-- Форма отправки файлов на наш Python-сервер -->
 
+    <form action="/merge" method="post" enctype="multipart/form-data" class="mixer-form">
+
+        <div class="form-group">
+            <label> Инструментал (inst.ogg):</label>
+            <input type="file" name="inst_file" accept=".ogg" required>
+        </div>
+
+        <div class="form-group">
+            <label> Вокал (voices.ogg):</label>
+            <input type="file" name="voice_file" accept=".ogg" required>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="use_rms" id="use_rms" checked>
+            <label for="use_rms">Включить RMS-нормализацию (выравнивание звука)</label>
+        </div>
+
+
+        <br>
+        <button type="submit" class="btn-submit">Склеить аудио дорожки</button>
+    </form>
 </body>
 
 </html>
