@@ -1,7 +1,11 @@
 from fastapi import FastAPI, Request, Form, File, UploadFile
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import io
+
+
+from app.merger import merge_fnf_tracks
 
 # Создаем само приложение сайта
 app = FastAPI(title="MergeOnline-Web")
@@ -29,14 +33,19 @@ async def merge_audio(
     inst_file: UploadFile = File(...),
     voice_file: UploadFile = File(...),
     use_rms: bool = Form(False)
-): # Для теста выводим в консоль информацию о полученных файлах
-    print(f"🎵 Получен инструментал: {inst_file.filename}")
-    print(f"🎤 Получен вокал: {voice_file.filename}")
-    print(f"🎛️ Галочка RMS включена?: {use_rms}")
+): # Чтение файлов из интернета напрямую в байты памяти сервера
+    inst_bytes = await inst_file.read()
+    voice_bytes = await voice_file.read()
 
-    return {
-        "status": "Файлы успешно приняты сервером.",
-        "instrumental": inst_file.filename,
-        "vocals": voice_file.filename,
-        "rms_enabled": use_rms
-    }
+    # Передаём байты в созданную функцию из файла merger.py и забираем готовый файл combined
+    combined_audio = merge_fnf_tracks(io.BytesIO(inst_bytes), io.BytesIO(voice_bytes), use_rms) # исправлено дополнен то что для каждый файл завернут в io.byteIO
+
+    output_buffer = io.BytesIO()
+    combined_audio.export(output_buffer, format="ogg")
+    output_buffer.seek(0)
+
+    return StreamingResponse(
+        output_buffer,
+        media_type="audio/ogg",
+        headers={"Content-Disposition": "attachment; filename=merged_track.ogg"}
+    )

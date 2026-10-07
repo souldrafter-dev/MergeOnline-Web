@@ -45,7 +45,7 @@ body {
     text-align: center;
     margin-top: 20px;
 }
-.checkbox-group label {
-    display: inline !important;
-    font-weight: normal !important;
+.mixer-form .checkbox-group label {
+    display: inline;
+    font-weight: normal;
 }
